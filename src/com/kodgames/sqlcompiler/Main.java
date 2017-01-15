@@ -1,4 +1,4 @@
-package com.kodgames.main;
+package com.kodgames.sqlcompiler;
 
 public class Main {
 
