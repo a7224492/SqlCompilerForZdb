@@ -1,15 +1,18 @@
 package com.kodgames.sqlcompiler.preprocesser;
 
+import java.io.IOException;
+
 /**
- * 预处理器接口
+ * 
  * @author jiangzhen
  *
  */
 public interface IPreProcessor {
 	
 	/**
-	 * 填满一个缓冲区，合并多余的界符
+	 * 
 	 * @param buffer
+	 * @throws IOException 
 	 */
-	public void getOneLine(StringBuilder buffer);
+	public void putIntoBuffer(StringBuilder buffer) throws IOException;
 }
