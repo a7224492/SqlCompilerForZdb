@@ -13,6 +13,7 @@ public class Lexical {
 	 */
 	private StringBuilder buffer;
 	private int startIndex, searchIndex;
+	private Token token;
 	
 	private static final String delimiter = " ()=;";
 	
@@ -28,26 +29,26 @@ public class Lexical {
 	}
 	
 	public Token token()
-	{
-		Token token = new Token();
-		StringBuilder tokenBuilder = new StringBuilder();
-		
-		this.searchIndex = this.startIndex;
+	{		
+		resetSearchIndex();
+		resetToken();
 		do
 		{
-			char ch = this.buffer.charAt(this.searchIndex);
+			char ch = currChar();
 			if (isDelimiter(ch))
 			{
-				token.setToken(tokenBuilder);
-				break;
+				finishOneToken();
+				return token;
 			}
 			else if (isLetter(ch))
 			{
-				keyLoop();
+				identifierLoop();
+				parseTokenType();
+				return token;
 			}
-			tokenBuilder.append(ch);
-			this.searchIndex = (this.searchIndex+1)%this.buffer.length();
-			if (this.searchIndex == this.startIndex)
+			tokenAppend(ch);
+			advance();
+			if (isTokenTooLong())
 			{
 				errorHandler(ErrorType.TOKEN_TOO_LONG);
 				break;
@@ -56,6 +57,92 @@ public class Lexical {
 		while (true);
 		
 		return token;
+	}
+	
+	private void resetSearchIndex()
+	{
+		this.searchIndex = this.startIndex;
+	}
+	private void resetToken()
+	{
+		this.token = new Token();
+	}
+	private void tokenAppend(char ch)
+	{
+		this.token.getToken().append(ch);
+	}
+	
+	private void advance()
+	{
+		this.searchIndex = (this.searchIndex+1)%this.buffer.length();
+	}
+	
+	private char currChar()
+	{
+		return this.token.getToken().charAt(this.searchIndex);
+	}
+	private void parseTokenType()
+	{
+		
+	}
+
+	private void identifierLoop() 
+	{
+		advance();
+		while (true)
+		{
+			if (isTokenTooLong())
+			{
+				errorHandler(ErrorType.TOKEN_TOO_LONG);
+			}
+			char ch = currChar();
+			if (isDelimiter(ch))
+			{
+				finishOneToken();
+				break;
+			}
+			tokenAppend(ch);
+			advance();
+		}
+	}
+	private boolean isTokenTooLong()
+	{
+		if ((this.searchIndex+1)%BUFF_SIZE == this.startIndex)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private void finishOneToken()
+	{
+		this.startIndex = this.searchIndex;
+	}
+
+	private boolean isLetter(char ch) 
+	{
+		if (ch >= 'a' && ch <= 'z')
+		{
+			return true;
+		}
+		if (ch >= 'A' && ch <= 'Z')
+		{
+			return true;
+		}
+		if (ch == '_')
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isDigit(char ch)
+	{
+		if (ch >= '0' && ch <= '9')
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private boolean isEndToken(char ch)
