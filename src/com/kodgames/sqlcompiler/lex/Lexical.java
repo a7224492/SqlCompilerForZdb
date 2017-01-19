@@ -21,10 +21,38 @@ public class Lexical {
 		this.searchIndex = 0;
 	}
 	
-	public String token()
+	public Token token()
 	{
-		StringBuilder token = new StringBuilder();
+		Token token = new Token();
+		StringBuilder tokenBuilder = new StringBuilder();
 		
-		return token.toString();
+		this.searchIndex = this.startIndex;
+		do
+		{
+			char ch = this.buffer.charAt(this.searchIndex);
+			if (isDelimiter(ch))
+			{
+				
+				break;
+			}
+			tokenBuilder.append(ch);
+			this.searchIndex = (this.searchIndex+1)%this.buffer.length();
+			if (this.searchIndex == this.startIndex)
+			{
+				System.out.print("token is too long!!!!");
+				break;
+			}
+		}
+		while (true);
+		
+		return token;
 	}
+
+	private boolean isDelimiter(char ch)
+	{
+		
+		return false;
+	}
+	
+	
 }
