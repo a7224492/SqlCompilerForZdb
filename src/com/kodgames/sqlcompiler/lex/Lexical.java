@@ -14,6 +14,12 @@ public class Lexical {
 	private StringBuilder buffer;
 	private int startIndex, searchIndex;
 	
+	private static final String delimiter = " ()=;";
+	
+	private enum ErrorType {
+		TOKEN_TOO_LONG;
+	};
+	
 	public Lexical()
 	{
 		this.buffer = new StringBuilder(BUFF_SIZE*2);
@@ -32,14 +38,18 @@ public class Lexical {
 			char ch = this.buffer.charAt(this.searchIndex);
 			if (isDelimiter(ch))
 			{
-				
+				token.setToken(tokenBuilder);
 				break;
+			}
+			else if (isLetter(ch))
+			{
+				keyLoop();
 			}
 			tokenBuilder.append(ch);
 			this.searchIndex = (this.searchIndex+1)%this.buffer.length();
 			if (this.searchIndex == this.startIndex)
 			{
-				System.out.print("token is too long!!!!");
+				errorHandler(ErrorType.TOKEN_TOO_LONG);
 				break;
 			}
 		}
@@ -48,11 +58,25 @@ public class Lexical {
 		return token;
 	}
 
+	private boolean isEndToken(char ch)
+	{
+		return ch == ';';
+	}
+
 	private boolean isDelimiter(char ch)
 	{
-		
+		for (int i = 0; i < delimiter.length(); ++i)
+		{
+			if (ch == delimiter.charAt(i))
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 	
-	
+	private void errorHandler(ErrorType type)
+	{
+		System.out.println("token too long");
+	}
 }
