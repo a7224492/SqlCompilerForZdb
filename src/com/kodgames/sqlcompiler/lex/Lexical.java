@@ -17,6 +17,8 @@ public class Lexical
 	private Token token;
 
 	private static final String delimiter = " ()=;";
+	
+	private PreProcessor preProcessor = new PreProcessor();
 
 	private enum ErrorType
 	{
@@ -30,8 +32,9 @@ public class Lexical
 		this.searchIndex = 0;
 	}
 
-	public Token token()
+	public Token token(String line)
 	{
+		preProcessor.processor(line);
 		resetSearchIndex();
 		resetToken();
 		do
@@ -92,7 +95,9 @@ public class Lexical
 		}
 		if (isKeyword())
 		{
-			
+			token.setValue(SKeyword.getInstance().keyWordValue(token.getToken().toString()));
+			token.setType(TokenType.KEY_WORD);
+			return;
 		}
 	}
 
@@ -177,8 +182,8 @@ public class Lexical
 	{
 		System.out.println("token too long");
 	}
-	private boolean isKeyWord()
+	private boolean isKeyword()
 	{
-		
+		return SKeyword.getInstance().isKeyWord(this.token.getToken().toString());
 	}
 }
