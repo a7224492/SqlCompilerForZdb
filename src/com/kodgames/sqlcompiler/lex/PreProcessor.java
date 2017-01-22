@@ -17,27 +17,26 @@ class PreProcessor{
 		
 	}
 	
+	// TODO 还没有完整的测试
 	public String processor(String line)
 	{
-		StringBuilder strBuilder = new StringBuilder(line);
-		for (int i = 0; i < strBuilder.length(); ++i)
+		StringBuilder strBuilder = new StringBuilder();
+		for (int i = 0; i < line.length(); ++i)
 		{
-			char ch = strBuilder.charAt(i);
-			while (isUselessChar(ch))
+			char ch = line.charAt(i);
+			if (isUselessChar(ch))
 			{
-				strBuilder.deleteCharAt(i);
-				ch = strBuilder.charAt(i);
+				continue;
 			}
-			if (isSpaceChar(ch) && i != (strBuilder.length()-1))
+			if (isSpaceChar(ch) && i != 0)
 			{
-				++i;
-				char next = strBuilder.charAt(i);
-				while (i < strBuilder.length() && isSpaceChar(next))
+				char pre = line.charAt(i-1);
+				if (isSpaceChar(pre))
 				{
-					strBuilder.deleteCharAt(i);
-					next = strBuilder.charAt(i);
+					continue;
 				}
 			}
+			strBuilder.append(ch);
 		}
 		return strBuilder.toString();
 	}

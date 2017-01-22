@@ -9,8 +9,19 @@ public class PreProcessorTest {
 	@Test
 	public void testProcessor() {
 		PreProcessor p = new PreProcessor();
-		String ret = p.processor("select *   from   m\n\ty_t\table;");
-		assertEquals(true,ret.equals("select * from my_table;"));
+		String[] sqls = {
+//				"sled   qe   n\t\n\rss   \n\n",
+//				"sled qe nss ",
+				"\new\t\r  eq    r\r\rqen",
+				"ew eq rqen",
+				"\n\newqe   eqwe ",
+				"ewqe eqwe "
+		};
+		for (int i = 0; i < sqls.length; i+=2)
+		{
+			String ret = p.processor(sqls[i]);
+			assertEquals(true, ret.equals(sqls[i+1]));
+		}
 	}
 
 }
