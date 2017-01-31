@@ -4,13 +4,11 @@ public class Token
 {
 	private StringBuilder token;
 	private TokenType type;
-	private int value;
 	
 	public Token()
 	{
 		this.token = new StringBuilder();
 		this.type = TokenType.UNKOWN;
-		this.value = -1;
 	}
 	
 	public void setToken(StringBuilder token)
@@ -29,12 +27,17 @@ public class Token
 	{
 		return this.type;
 	}
-	public void setValue(int value)
+	
+	@Override
+	public String toString()
 	{
-		this.value = value;
-	}
-	public int getValue()
-	{
-		return this.value;
+		return new StringBuilder().append("[")
+			.append("token=")
+			.append(token)
+			.append(",type=")
+			.append(type.getName())
+			.append(",value=")
+			.append(type.getValue())
+			.toString();
 	}
 }

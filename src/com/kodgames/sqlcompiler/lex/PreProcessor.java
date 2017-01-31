@@ -17,7 +17,7 @@ class PreProcessor{
 		
 	}
 	
-	// TODO 还没有完整的测试
+	// TODO
 	public String processor(String line)
 	{
 		StringBuilder strBuilder = new StringBuilder();
@@ -28,9 +28,9 @@ class PreProcessor{
 			{
 				continue;
 			}
-			if (isSpaceChar(ch) && i != 0)
+			if (isSpaceChar(ch) && strBuilder.length() > 0)
 			{
-				char pre = line.charAt(i-1);
+				char pre = strBuilder.charAt(strBuilder.length()-1);
 				if (isSpaceChar(pre))
 				{
 					continue;

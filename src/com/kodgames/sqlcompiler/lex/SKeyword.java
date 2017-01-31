@@ -563,7 +563,7 @@ public class SKeyword
 	
 	public boolean isKeyWord(String word)
 	{
-		return this.keywordMap.containsKey(word);
+		return this.keywordMap.containsKey(word.toUpperCase());
 	}
 	
 	public Integer keyWordValue(String word)

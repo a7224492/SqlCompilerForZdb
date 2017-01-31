@@ -8,7 +8,7 @@ package com.kodgames.sqlcompiler.lex;
 public class Lexical
 {
 
-	private static int BUFF_SIZE = 120;
+	private static int BUFF_SIZE = 240;
 	/**
 	 * 
 	 */
@@ -16,7 +16,8 @@ public class Lexical
 	private int startIndex, searchIndex;
 	private Token token;
 
-	private static final String delimiter = " ()=;";
+	private static final String delimiter = " ()=;,";
+	private static final String identifierLetter = "*_"; 
 	
 	private PreProcessor preProcessor = new PreProcessor();
 
@@ -27,49 +28,68 @@ public class Lexical
 
 	public Lexical()
 	{
-		this.buffer = new StringBuilder(BUFF_SIZE * 2);
+		this.buffer = new StringBuilder(BUFF_SIZE);
 		this.startIndex = 0;
 		this.searchIndex = 0;
+		this.token = new Token();
+	}
+	
+	public void processLine(String line)
+	{
+		String retLine = preProcessor.processor(line);
+		resetToken();
+		resetSearchIndex();
+		buffer.replace(0, buffer.length(), retLine);
 	}
 
-	public Token token(String line)
+	public Token token()
 	{
-		preProcessor.processor(line);
-		resetSearchIndex();
 		resetToken();
-		do
+		while (true)
 		{
 			char ch = currChar();
 			if (isDelimiter(ch))
 			{
-				finishOneToken();
-				return token;
+				tokenAppend(ch);
+				if (ch == ';')
+				{
+					token.setType(TokenType.FINISH_TOKEN);
+				}
+				else
+				{
+					token.setType(TokenType.DELIMITER_TOKEN);
+				}
+				break;
 			}
 			else if (isLetter(ch))
 			{
 				identifierLoop();
-				return token;
-			}
-			tokenAppend(ch);
-			advance();
-			if (isTokenTooLong())
-			{
-				errorHandler(ErrorType.TOKEN_TOO_LONG);
+				parseToken();
 				break;
 			}
-		} while (true);
-
+			else if (isDigit(ch))
+			{
+				digitLoop();
+				break;
+			}
+			else
+			{
+				System.out.println("unkown character");
+				break;
+			}
+		}	
+		finishOneToken();
 		return token;
-	}
-
-	private void resetSearchIndex()
-	{
-		this.searchIndex = this.startIndex;
 	}
 
 	private void resetToken()
 	{
-		this.token = new Token();
+		token.getToken().delete(0, token.getToken().length());
+		token.setType(TokenType.UNKOWN);
+	}
+	private void resetSearchIndex()
+	{
+		this.searchIndex = this.startIndex = 0;
 	}
 
 	private void tokenAppend(char ch)
@@ -79,15 +99,19 @@ public class Lexical
 
 	private void advance()
 	{
-		this.searchIndex = (this.searchIndex + 1) % this.buffer.length();
+		++this.searchIndex;
+		if (this.searchIndex == this.buffer.length())
+		{
+			errorHandlerTokenTooLong();
+		}
 	}
 
 	private char currChar()
 	{
-		return this.token.getToken().charAt(this.searchIndex);
+		return this.buffer.charAt(this.searchIndex);
 	}
 
-	private void parseTokenType()
+	private void parseToken()
 	{
 		if (this.token.getType() == TokenType.IDENTIFIER)
 		{
@@ -95,15 +119,32 @@ public class Lexical
 		}
 		if (isKeyword())
 		{
-			token.setValue(SKeyword.getInstance().keyWordValue(token.getToken().toString()));
 			token.setType(TokenType.KEY_WORD);
 			return;
 		}
 	}
 
+	private void digitLoop()
+	{
+		while (true)
+		{
+			char ch = currChar();
+			if (!isDigit(ch))
+			{
+				errorHandlerIllegalIdentifier();
+				return ;
+			}
+			else if (isDelimiter(ch))
+			{
+				finishOneToken();
+				return ;
+			}
+			tokenAppend(ch);
+			advance();
+		}
+	}
 	private void identifierLoop()
 	{
-		advance();
 		while (true)
 		{
 			if (isTokenTooLong())
@@ -113,13 +154,11 @@ public class Lexical
 			char ch = currChar();
 			if (isDelimiter(ch))
 			{
-				finishOneToken();
-				parseTokenType();
 				break;
 			}
-			else if (isDigit(ch))
+			else if (isDigit(ch) || isIdentifierLetter(ch))
 			{
-				this.token.setType(TokenType.IDENTIFIER);
+				token.setType(TokenType.IDENTIFIER);
 			}
 			tokenAppend(ch);
 			advance();
@@ -139,7 +178,17 @@ public class Lexical
 	{
 		this.startIndex = this.searchIndex;
 	}
-
+	private boolean isIdentifierLetter(char ch)
+	{
+		for (int i = 0; i < identifierLetter.length(); ++i)
+		{
+			if (ch == identifierLetter.charAt(i))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	private boolean isLetter(char ch)
 	{
 		if (ch >= 'a' && ch <= 'z')
@@ -180,6 +229,16 @@ public class Lexical
 
 	private void errorHandler(ErrorType type)
 	{
+		System.out.println("token too long");
+	}
+	private void errorHandlerIllegalIdentifier()
+	{
+		resetToken();
+		System.out.println("illegal identifier");
+	}
+	private void errorHandlerTokenTooLong()
+	{
+		resetToken();
 		System.out.println("token too long");
 	}
 	private boolean isKeyword()
