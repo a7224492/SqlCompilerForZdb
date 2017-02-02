@@ -5,8 +5,9 @@ package com.kodgames.sqlcompiler.lex;
  * @author jiangzhen
  *
  */
-public class Lexical {
-	
+public class Lexical
+{
+
 	private static int BUFF_SIZE = 120;
 	/**
 	 * 
@@ -14,22 +15,23 @@ public class Lexical {
 	private StringBuilder buffer;
 	private int startIndex, searchIndex;
 	private Token token;
-	
+
 	private static final String delimiter = " ()=;";
-	
-	private enum ErrorType {
+
+	private enum ErrorType
+	{
 		TOKEN_TOO_LONG;
 	};
-	
+
 	public Lexical()
 	{
-		this.buffer = new StringBuilder(BUFF_SIZE*2);
+		this.buffer = new StringBuilder(BUFF_SIZE * 2);
 		this.startIndex = 0;
 		this.searchIndex = 0;
 	}
-	
+
 	public Token token()
-	{		
+	{
 		resetSearchIndex();
 		resetToken();
 		do
@@ -43,7 +45,6 @@ public class Lexical {
 			else if (isLetter(ch))
 			{
 				identifierLoop();
-				parseTokenType();
 				return token;
 			}
 			tokenAppend(ch);
@@ -53,40 +54,49 @@ public class Lexical {
 				errorHandler(ErrorType.TOKEN_TOO_LONG);
 				break;
 			}
-		}
-		while (true);
-		
+		} while (true);
+
 		return token;
 	}
-	
+
 	private void resetSearchIndex()
 	{
 		this.searchIndex = this.startIndex;
 	}
+
 	private void resetToken()
 	{
 		this.token = new Token();
 	}
+
 	private void tokenAppend(char ch)
 	{
 		this.token.getToken().append(ch);
 	}
-	
+
 	private void advance()
 	{
-		this.searchIndex = (this.searchIndex+1)%this.buffer.length();
+		this.searchIndex = (this.searchIndex + 1) % this.buffer.length();
 	}
-	
+
 	private char currChar()
 	{
 		return this.token.getToken().charAt(this.searchIndex);
 	}
+
 	private void parseTokenType()
 	{
-		
+		if (this.token.getType() == TokenType.IDENTIFIER)
+		{
+			return ;
+		}
+		if (isKeyword())
+		{
+			
+		}
 	}
 
-	private void identifierLoop() 
+	private void identifierLoop()
 	{
 		advance();
 		while (true)
@@ -99,27 +109,33 @@ public class Lexical {
 			if (isDelimiter(ch))
 			{
 				finishOneToken();
+				parseTokenType();
 				break;
+			}
+			else if (isDigit(ch))
+			{
+				this.token.setType(TokenType.IDENTIFIER);
 			}
 			tokenAppend(ch);
 			advance();
 		}
 	}
+
 	private boolean isTokenTooLong()
 	{
-		if ((this.searchIndex+1)%BUFF_SIZE == this.startIndex)
+		if ((this.searchIndex + 1) % BUFF_SIZE == this.startIndex)
 		{
 			return true;
 		}
 		return false;
 	}
-	
+
 	private void finishOneToken()
 	{
 		this.startIndex = this.searchIndex;
 	}
 
-	private boolean isLetter(char ch) 
+	private boolean isLetter(char ch)
 	{
 		if (ch >= 'a' && ch <= 'z')
 		{
@@ -135,7 +151,7 @@ public class Lexical {
 		}
 		return false;
 	}
-	
+
 	private boolean isDigit(char ch)
 	{
 		if (ch >= '0' && ch <= '9')
@@ -143,11 +159,6 @@ public class Lexical {
 			return true;
 		}
 		return false;
-	}
-
-	private boolean isEndToken(char ch)
-	{
-		return ch == ';';
 	}
 
 	private boolean isDelimiter(char ch)
@@ -161,9 +172,13 @@ public class Lexical {
 		}
 		return false;
 	}
-	
+
 	private void errorHandler(ErrorType type)
 	{
 		System.out.println("token too long");
+	}
+	private boolean isKeyWord()
+	{
+		
 	}
 }

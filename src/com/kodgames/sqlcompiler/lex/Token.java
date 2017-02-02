@@ -3,13 +3,13 @@ package com.kodgames.sqlcompiler.lex;
 public class Token
 {
 	private StringBuilder token;
-	private int type;
+	private TokenType type;
 	private int value;
 	
 	public Token()
 	{
 		this.token = new StringBuilder();
-		this.type = -1;
+		this.type = TokenType.UNKOWN;
 		this.value = -1;
 	}
 	
@@ -21,11 +21,11 @@ public class Token
 	{
 		return this.token;
 	}
-	public void setType(int type)
+	public void setType(TokenType type)
 	{
 		this.type = type;
 	}
-	public int getType()
+	public TokenType getType()
 	{
 		return this.type;
 	}
